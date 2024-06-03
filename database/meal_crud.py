@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from schemes.meal_scheme import NewDate, NewMeal
 from models.models import Meal, Date
-from datetime import datetime
+from schemes.meal_scheme import NewDate, NewMeal
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -124,6 +125,36 @@ def get_meal_by_date_limit(date_from: str, limit: int, db: Session):
         ))
 
     return date_list
+
+
+def update_meal_by_date(date: str, new_meal: NewDate, db: Session):
+    date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
+
+    date.existence = new_meal.existence
+
+    if new_meal.meals:
+        for meal in new_meal.meals:
+            meal_data = Meal(
+                meal=meal.meal,
+                code=meal.code,
+                date_id=date.id
+            )
+
+            date.meals.append(meal_data)
+
+    db.commit()
+    db.refresh(date)
+
+    return date
+
+
+def delete_meal_by_date(date: str, db: Session):
+    date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
+
+    db.delete(date)
+    db.commit()
+
+    return True
 
 
 def to_date_obj(date: str):

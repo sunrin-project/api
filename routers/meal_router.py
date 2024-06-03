@@ -1,15 +1,13 @@
+import os
 from typing import Optional
 
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.database import get_db
 from database import meal_crud
-
-from fastapi import APIRouter, Depends, HTTPException
-
+from database.database import get_db
 from schemes.meal_scheme import NewDate
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -71,5 +69,27 @@ async def insert_meal(new_meal: NewDate, password: Optional[str] = None, db: Ses
     else:
         try:
             return {'success': True, 'data': meal_crud.insert_meal(new_meal, db)}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+
+@app.put('/')
+async def update_meal(date: str, new_meal: NewDate, password: Optional[str] = None, db: Session = Depends(get_db)):
+    if password != os.environ.get('PASSWORD'):
+        raise HTTPException(status_code=401, detail='Unauthorized')
+    else:
+        try:
+            return {'success': True, 'data': meal_crud.update_meal_by_date(date, new_meal, db)}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+
+@app.delete('/')
+async def delete_meal(date: str, password: Optional[str] = None, db: Session = Depends(get_db)):
+    if password != os.environ.get('PASSWORD'):
+        raise HTTPException(status_code=401, detail='Unauthorized')
+    else:
+        try:
+            return {'success': True, 'data': meal_crud.delete_meal_by_date(date, db)}
         except Exception as e:
             return {'success': False, 'message': str(e)}

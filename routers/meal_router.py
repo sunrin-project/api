@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -17,10 +18,6 @@ app = APIRouter(
     include_in_schema=False
 )
 
-"""
-from, to
-"""
-
 
 @app.get('/list')
 async def get_all_meal(db: Session = Depends(get_db)):
@@ -35,6 +32,36 @@ async def get_all_meal(db: Session = Depends(get_db)):
 async def get_meal(date: str, db: Session = Depends(get_db)):
     try:
         return {'success': True, 'data': meal_crud.get_meal_by_date(date, db)}
+    except Exception as e:
+        return {'success': False, 'message': str(e)}
+
+
+@app.get('/today')
+async def get_today_meal(db: Session = Depends(get_db)):
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        data = meal_crud.get_meal_by_date(today, db)
+        print(data)
+        return {'success': True, 'data': data}
+    except Exception as e:
+        return {'success': False, 'message': str(e)}
+
+
+@app.get('/week')
+async def get_lunch_week(db: Session = Depends(get_db)):
+    try:
+        today = datetime.now()
+
+        weekday = today.weekday()
+
+        monday = today - timedelta(days=weekday)
+        sunday = monday + timedelta(days=6)
+
+        monday_str = monday.strftime('%Y-%m-%d')
+        sunday_str = sunday.strftime('%Y-%m-%d')
+
+        data = meal_crud.get_meal_by_date_range(monday_str, sunday_str, db)
+        return {'success': True, 'data': data, 'day_count': len(data)}
     except Exception as e:
         return {'success': False, 'message': str(e)}
 

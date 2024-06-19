@@ -4,8 +4,9 @@ from fastapi import HTTPException
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
+from exceptions.meal_exceptions import MealNotFoundException
 from models.models import Meal, Date
-from schemes.meal_scheme import NewDate, NewMeal
+from schemes.meal_scheme import NewDate, MealScheme, DateScheme
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -18,7 +19,9 @@ def insert_meal(new_meal: NewDate, db: Session):
 
     if new_meal.meals:
         for meal in new_meal.meals:
-            if meal.meal.strip() == '' or meal.code.strip() == '':
+            meal_data = meal
+
+            if meal.code == '' or meal.meal == '':
                 raise HTTPException(status_code=400, detail='meal and code must not be empty')
             meal_data = Meal(
                 meal=meal.meal,
@@ -46,12 +49,14 @@ def get_all_meal(db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(NewMeal(
+            meal_list.append(MealScheme(
+                id=m.id,
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(NewDate(
+        date_list.append(DateScheme(
+            id=d.id,
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence
@@ -61,25 +66,29 @@ def get_all_meal(db: Session):
 
 
 def get_meal_by_date(date: str, db: Session):
-    date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
+    found_date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
 
-    if not date:
-        return HTTPException(status_code=404, detail='Date not found')
+    if not found_date:
+        raise MealNotFoundException(
+            message=f'Meal with date {date} not found'
+        )
 
-    meal = db.query(Meal).filter(Meal.date_id == date.id).all()
+    meal = db.query(Meal).filter(Meal.date_id == found_date.id).all()
 
     meal_list = []
 
     for m in meal:
-        meal_list.append(NewMeal(
+        meal_list.append(MealScheme(
+            id=m.id,
             meal=m.meal,
             code=m.code,
         ))
 
-    return NewDate(
-        date=to_date_str(date.date),
+    return DateScheme(
+        id=found_date.id,
+        date=to_date_str(found_date.date),
         meals=meal_list,
-        existence=date.existence
+        existence=found_date.existence
     )
 
 
@@ -94,12 +103,14 @@ def get_meal_by_date_range(date_from: str, date_to: str, db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(NewMeal(
+            meal_list.append(MealScheme(
+                id=m.id,
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(NewDate(
+        date_list.append(DateScheme(
+            id=d.id,
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence
@@ -119,12 +130,14 @@ def get_meal_by_date_limit(date_from: str, limit: int, db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(NewMeal(
+            meal_list.append(MealScheme(
+                id=m.id,
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(NewDate(
+        date_list.append(DateScheme(
+            id=d.id,
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence
@@ -134,12 +147,17 @@ def get_meal_by_date_limit(date_from: str, limit: int, db: Session):
 
 
 def update_meal_by_date(date: str, new_meal: NewDate, db: Session):
-    date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
+    found_date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
 
-    date.existence = new_meal.existence
+    if not found_date:
+        raise MealNotFoundException(
+            message=f'Meal with date {date} not found'
+        )
+
+    found_date.existence = new_meal.existence
 
     if new_meal.meals:
-        previous_meal = db.query(Meal).filter(Meal.date_id == date.id).all()
+        previous_meal = db.query(Meal).filter(Meal.date_id == found_date.id).all()
         for p in previous_meal:
             db.delete(p)
 
@@ -148,27 +166,32 @@ def update_meal_by_date(date: str, new_meal: NewDate, db: Session):
             meal_data = Meal(
                 meal=meal.meal,
                 code=meal.code,
-                date_id=date.id
+                date_id=found_date.id
             )
 
             meal_list.append(meal_data)
 
-        date.meals = meal_list
+        found_date.meals = meal_list
 
     db.commit()
-    db.refresh(date)
+    db.refresh(found_date)
 
-    return date
+    return found_date
 
 
 def delete_meal_by_date(date: str, db: Session):
-    date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
+    found_date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
 
-    meals = db.query(Meal).filter(Meal.date_id == date.id).all()
+    if not found_date:
+        raise MealNotFoundException(
+            message=f'Meal with date {date} not found'
+        )
+
+    meals = db.query(Meal).filter(Meal.date_id == found_date.id).all()
     for m in meals:
         db.delete(m)
 
-    db.delete(date)
+    db.delete(found_date)
     db.commit()
 
     return True

@@ -20,7 +20,6 @@ SWAGGER_HEADERS = {
                 'url': 'https://opensource.org/licenses/BSD-2-Clause'
             }
         }
-
 }
 
 app = FastAPI(

@@ -61,6 +61,38 @@ async def get_today_meal(db: Session = Depends(get_db)) -> ResponseScheme:
         )
 
 
+@app.get('/yesterday')
+async def get_yesterday_meal(db: Session = Depends(get_db)) -> ResponseScheme:
+    try:
+        yesterday = datetime.now() - timedelta(days=1)
+        yesterday_str = yesterday.strftime('%Y-%m-%d')
+        data = meal_crud.get_meal_by_date(yesterday_str, db)
+
+        return SuccessScheme(
+            data=data
+        )
+    except Exception as e:
+        return ErrorScheme(
+            message=str(e)
+        )
+
+
+@app.get('/tomorrow')
+async def get_tomorrow_meal(db: Session = Depends(get_db)) -> ResponseScheme:
+    try:
+        tomorrow = datetime.now() + timedelta(days=1)
+        tomorrow_str = tomorrow.strftime('%Y-%m-%d')
+        data = meal_crud.get_meal_by_date(tomorrow_str, db)
+
+        return SuccessScheme(
+            data=data
+        )
+    except Exception as e:
+        return ErrorScheme(
+            message=str(e)
+        )
+
+
 @app.get('/week')
 async def get_lunch_week(db: Session = Depends(get_db)) -> ResponseScheme:
     try:
@@ -75,6 +107,39 @@ async def get_lunch_week(db: Session = Depends(get_db)) -> ResponseScheme:
         sunday_str = sunday.strftime('%Y-%m-%d')
 
         data = meal_crud.get_meal_by_date_range(monday_str, sunday_str, db)
+        return SuccessDayCountScheme(
+            data=data,
+            day_count=len(data)
+        )
+    except Exception as e:
+        return ErrorScheme(
+            message=str(e)
+        )
+
+
+@app.get('/month')
+async def get_lunch_month(db: Session = Depends(get_db)) -> ResponseScheme:
+    try:
+        today = datetime.now()
+        month = today.month
+        year = today.year
+        last_day = 31
+
+        if month == 2:
+            if year % 4 == 0 and year % 100 != 0 or year % 400 == 0:
+                last_day = 29
+            else:
+                last_day = 28
+        elif month in [4, 6, 9, 11]:
+            last_day = 30
+
+        first_day = datetime(year, month, 1)
+        last_day = datetime(year, month, last_day)
+
+        first_day_str = first_day.strftime('%Y-%m-%d')
+        last_day_str = last_day.strftime('%Y-%m-%d')
+
+        data = meal_crud.get_meal_by_date_range(first_day_str, last_day_str, db)
         return SuccessDayCountScheme(
             data=data,
             day_count=len(data)

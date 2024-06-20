@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from exceptions.meal_exceptions import MealNotFoundException
 from models.models import Meal, Date
-from schemes.meal_scheme import NewDate, MealScheme, DateScheme
+from schemes.meal_scheme import NewDate, NewMeal
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -19,8 +19,6 @@ def insert_meal(new_meal: NewDate, db: Session):
 
     if new_meal.meals:
         for meal in new_meal.meals:
-            meal_data = meal
-
             if meal.code == '' or meal.meal == '':
                 raise HTTPException(status_code=400, detail='meal and code must not be empty')
             meal_data = Meal(
@@ -49,14 +47,12 @@ def get_all_meal(db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(MealScheme(
-                id=m.id,
+            meal_list.append(NewMeal(
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(DateScheme(
-            id=d.id,
+        date_list.append(NewDate(
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence
@@ -78,14 +74,12 @@ def get_meal_by_date(date: str, db: Session):
     meal_list = []
 
     for m in meal:
-        meal_list.append(MealScheme(
-            id=m.id,
+        meal_list.append(NewMeal(
             meal=m.meal,
             code=m.code,
         ))
 
-    return DateScheme(
-        id=found_date.id,
+    return NewDate(
         date=to_date_str(found_date.date),
         meals=meal_list,
         existence=found_date.existence
@@ -103,14 +97,12 @@ def get_meal_by_date_range(date_from: str, date_to: str, db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(MealScheme(
-                id=m.id,
+            meal_list.append(NewMeal(
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(DateScheme(
-            id=d.id,
+        date_list.append(NewDate(
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence
@@ -130,14 +122,12 @@ def get_meal_by_date_limit(date_from: str, limit: int, db: Session):
         meal_list = []
 
         for m in meal:
-            meal_list.append(MealScheme(
-                id=m.id,
+            meal_list.append(NewMeal(
                 meal=m.meal,
                 code=m.code,
             ))
 
-        date_list.append(DateScheme(
-            id=d.id,
+        date_list.append(NewDate(
             date=to_date_str(d.date),
             meals=meal_list,
             existence=d.existence

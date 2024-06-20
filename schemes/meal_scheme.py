@@ -17,7 +17,7 @@ class MealScheme(BaseModel):
 class DateScheme(BaseModel):
     id: int
     date: str
-    meals: Optional[List[MealScheme]] = None
+    meals: Optional[List[NewMeal]] = None
     existence: bool
 
 
@@ -29,12 +29,12 @@ class NewDate(BaseModel):
 
 class SuccessScheme(BaseModel):
     success: bool = True
-    data: DateScheme = None
+    data: NewDate = None
 
 
 class SuccessDayCountScheme(BaseModel):
     success: bool = True
-    data: List[DateScheme] = None
+    data: List[NewDate] = None
     day_count: int = None
 
 

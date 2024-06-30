@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from pydantic import BaseModel
 
@@ -16,6 +16,7 @@ class MealScheme(BaseModel):
 
 class DateScheme(BaseModel):
     id: int
+    
     date: str
     meals: Optional[List[NewMeal]] = None
     existence: bool
@@ -29,7 +30,7 @@ class NewDate(BaseModel):
 
 class SuccessScheme(BaseModel):
     success: bool = True
-    data: NewDate = None
+    data: Any = None
 
 
 class SuccessDayCountScheme(BaseModel):

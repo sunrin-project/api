@@ -183,7 +183,7 @@ async def insert_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)
     if key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
-        data = meal_crud.get_meal_by_date(new_meal.date, db)
+        data = meal_crud.insert_meal(new_meal, db)
 
         try:
             return SuccessScheme(
@@ -200,7 +200,7 @@ async def update_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)
     if key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
-        data = meal_crud.get_meal_by_date(new_meal.date, db)
+        data = meal_crud.update_meal_by_date(new_meal.date, db)
 
         try:
             return SuccessScheme(
@@ -217,7 +217,7 @@ async def delete_meal(date: str, key: str, db: Session = Depends(get_db)) -> Res
     if key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
-        data = meal_crud.get_meal_by_date(date, db)
+        data = meal_crud.delete_meal_by_date(date, db)
 
         try:
             return SuccessScheme(

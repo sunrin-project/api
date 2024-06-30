@@ -33,7 +33,11 @@ def insert_meal(new_meal: NewDate, db: Session):
     db.commit()
     db.refresh(date)
 
-    return date
+    return NewDate(
+        date=to_date_str(date.date),
+        meals=new_meal.meals,
+        existence=date.existence
+    )
 
 
 def get_all_meal(db: Session):
@@ -166,7 +170,11 @@ def update_meal_by_date(date: str, new_meal: NewDate, db: Session):
     db.commit()
     db.refresh(found_date)
 
-    return found_date
+    return NewDate(
+        date=to_date_str(found_date.date),
+        meals=new_meal.meals,
+        existence=found_date.existence
+    )
 
 
 def delete_meal_by_date(date: str, db: Session):

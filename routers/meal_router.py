@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 
 from database import meal_crud
@@ -179,8 +179,8 @@ async def get_meal_period(date_from: str, limit: int, db: Session = Depends(get_
 
 
 @app.post('/')
-async def insert_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)) -> ResponseScheme:
-    if key != os.environ.get('KEY'):
+async def insert_meal(new_meal: NewDate, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
+    if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
         data = meal_crud.insert_meal(new_meal, db)
@@ -196,11 +196,11 @@ async def insert_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)
 
 
 @app.put('/')
-async def update_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)) -> ResponseScheme:
-    if key != os.environ.get('KEY'):
+async def update_meal(new_meal: NewDate, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
+    if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
-        data = meal_crud.update_meal_by_date(new_meal.date, db)
+        data = meal_crud.update_meal_by_date(new_meal, db)
 
         try:
             return SuccessScheme(
@@ -213,8 +213,8 @@ async def update_meal(new_meal: NewDate, key: str, db: Session = Depends(get_db)
 
 
 @app.delete('/')
-async def delete_meal(date: str, key: str, db: Session = Depends(get_db)) -> ResponseScheme:
-    if key != os.environ.get('KEY'):
+async def delete_meal(date: str, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
+    if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
     else:
         data = meal_crud.delete_meal_by_date(date, db)

@@ -140,7 +140,9 @@ def get_meal_by_date_limit(date_from: str, limit: int, db: Session):
     return date_list
 
 
-def update_meal_by_date(date: str, new_meal: NewDate, db: Session):
+def update_meal_by_date(new_meal: NewDate, db: Session):
+    date = new_meal.date
+
     found_date = db.query(Date).filter(Date.date == to_date_obj(date)).first()
 
     if not found_date:

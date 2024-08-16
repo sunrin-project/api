@@ -31,7 +31,7 @@ async def get_all_meal(db: Session = Depends(get_db)) -> ResponseScheme:
         )
 
 
-@app.get('/')
+@app.get('')
 async def get_meal(date: str, db: Session = Depends(get_db)) -> ResponseScheme:
     try:
         data = meal_crud.get_meal_by_date(date, db)
@@ -178,7 +178,7 @@ async def get_meal_period(date_from: str, limit: int, db: Session = Depends(get_
         )
 
 
-@app.post('/')
+@app.post('')
 async def insert_meal(new_meal: NewDate, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
     if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
@@ -195,7 +195,7 @@ async def insert_meal(new_meal: NewDate, st_key: str = Header(None), db: Session
             )
 
 
-@app.put('/')
+@app.put('')
 async def update_meal(new_meal: NewDate, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
     if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')
@@ -212,7 +212,7 @@ async def update_meal(new_meal: NewDate, st_key: str = Header(None), db: Session
             )
 
 
-@app.delete('/')
+@app.delete('')
 async def delete_meal(date: str, st_key: str = Header(None), db: Session = Depends(get_db)) -> ResponseScheme:
     if st_key != os.environ.get('KEY'):
         raise HTTPException(status_code=401, detail='Unauthorized')

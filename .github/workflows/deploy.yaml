@@ -1,4 +1,4 @@
-name: Deploy Sunrin Today
+name: Deploy Sunrin Today API
 on:
   push:
     branches:

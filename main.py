@@ -34,10 +34,4 @@ app = FastAPI(
     **SWAGGER_HEADERS
 )
 
-
-@app.get('/')
-def hello():
-    return 'Hello, Sunrin Today!'
-
-
 app.include_router(meal_router.app, tags=['meal'])

@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 
 from database.database import engine
 from models.models import Base
 from routers import meal_router
+
+from fastapi.responses import HTMLResponse
 
 Base.metadata.create_all(bind=engine)
 
@@ -33,5 +35,11 @@ app = FastAPI(
     },
     **SWAGGER_HEADERS
 )
+
+
+@app.get('/favicon.ico', response_class=HTMLResponse)
+async def favicon():
+    return Response(content="", media_type="image/x-icon")
+
 
 app.include_router(meal_router.app, tags=['meal'])

@@ -133,6 +133,48 @@ async def get_meal_period(date_from: str, limit: int, db: Session = Depends(get_
         day_count=len(data)
     )
 
+@app.get('/rest')
+@handle_exceptions
+async def get_rest_day_in_current_month(db: Session = Depends(get_db)) -> ResponseScheme:
+    today = datetime.now()
+    year = today.year
+    month = today.month
+    data = meal_crud.get_rest_day_in_month(year, month, db)
+    return SuccessDayCountScheme(
+        data=data,
+        day_count=len(data)
+    )
+
+
+@app.get('/rest/next')
+@handle_exceptions
+async def get_rest_day_in_next_month(db: Session = Depends(get_db)) -> ResponseScheme:
+    today = datetime.now()
+    year = today.year
+    month = today.month + 1
+    if month > 12:
+        month = 1
+        year += 1
+    data = meal_crud.get_rest_day_in_month(year, month, db)
+    return SuccessDayCountScheme(
+        data=data,
+        day_count=len(data)
+    )
+
+@app.get('/rest/previous')
+@handle_exceptions
+async def get_rest_day_in_previous_month(db: Session = Depends(get_db)) -> ResponseScheme:
+    today = datetime.now()
+    year = today.year
+    month = today.month - 1
+    if month < 1:
+        month = 12
+        year -= 1
+    data = meal_crud.get_rest_day_in_month(year, month, db)
+    return SuccessDayCountScheme(
+        data=data,
+        day_count=len(data)
+    )
 
 @app.post('')
 @handle_exceptions

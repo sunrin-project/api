@@ -14,7 +14,7 @@ DATE_FORMAT = '%Y-%m-%d'
 def insert_meal(new_meal: NewDate, db: Session):
     date = Date(
         date=datetime.strptime(new_meal.date, '%Y-%m-%d'),
-        existence=True
+        existence=new_meal.existence
     )
 
     if new_meal.meals:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException
-from sqlalchemy import and_
+from sqlalchemy import and_, extract
 from sqlalchemy.orm import Session
 
 from exceptions.meal_exceptions import MealNotFoundException
@@ -197,7 +197,10 @@ def delete_meal_by_date(date: str, db: Session):
     return True
 
 def get_rest_day_in_month(year: int, month: int, db: Session):
-    date = db.query(Date).filter(and_(Date.date >= to_date_obj(f'{year}-{month}-01'), Date.date <= to_date_obj(f'{year}-{month}-31'))).all()
+    date = db.query(Date).filter(
+        extract('year', Date.date) == year,
+        extract('month', Date.date) == month
+    ).all()
 
     date_list = []
 
@@ -207,7 +210,10 @@ def get_rest_day_in_month(year: int, month: int, db: Session):
 
             date_list.append(NewDate(
                 date=to_date_str(d.date),
-                meals=meal.meal,
+                meals=[NewMeal(
+                    meal=meal.meal,
+                    code=meal.code
+                )],
                 existence=d.existence
             ))
 

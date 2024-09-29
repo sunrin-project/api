@@ -185,7 +185,7 @@ def delete_meal_by_date(date: str, db: Session):
     if not found_date:
         raise MealNotFoundException(
             message=f'Meal with date {date} not found'
-        ) 
+        )
 
     meals = db.query(Meal).filter(Meal.date_id == found_date.id).all()
     for m in meals:
@@ -202,10 +202,12 @@ def get_rest_day_in_month(year: int, month: int, db: Session):
     date_list = []
 
     for d in date:
-        if d.existence == False:
+        if not d.existence:
+            meal = db.query(Meal).filter(Meal.date_id == d.id).first()
+
             date_list.append(NewDate(
                 date=to_date_str(d.date),
-                meals=[],
+                meals=meal.meal,
                 existence=d.existence
             ))
 

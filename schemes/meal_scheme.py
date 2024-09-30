@@ -20,12 +20,14 @@ class DateScheme(BaseModel):
     date: str
     meals: Optional[List[NewMeal]] = []
     existence: bool
+    rest: bool
 
 
 class NewDate(BaseModel):
     date: str
     meals: Optional[List[NewMeal]] = []
     existence: bool
+    rest: bool
 
 
 class SuccessScheme(BaseModel):

@@ -22,5 +22,6 @@ class Date(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     date = Column(Date, nullable=False, unique=True)
     existence = Column(Boolean(), nullable=False, default=True)
+    rest = Column(Boolean(), nullable=False, default=False)
 
     meals = relationship('Meal', back_populates='date')
